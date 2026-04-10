@@ -2,10 +2,11 @@ import express, { Request, Response } from "express";
 import dotenv from "dotenv";
 import axios from "axios";
 import { TeslaApiVehiclesResponse, TeslaVehicle, TeslaApiVehicle, VehiclesResponse, VehicleState } from "./types";
-import { exchangeCodeForToken, fetchTeslaVehicles, fetchTeslaVehicle } from "./tesla";
+import { exchangeCodeForToken, fetchTeslaVehicles, fetchTeslaVehicle, refreshAccessToken } from "./tesla";
 import {vehicles, findVehicleById} from "./sim";
-let savedAccessToken: any;
-let savedRefreshToken: any;
+import { error } from "node:console";
+let savedAccessToken: string | ""
+let savedRefreshToken: any
 
 dotenv.config();
 
@@ -20,13 +21,29 @@ app.get("/", (req: Request, res: Response) => {
   res.send("Tesla TS API is running");
 });
 
-app.get("/vehicles", (req: Request, res: Response) => {
-  const response: VehiclesResponse = {
-    count: vehicles.length,
-    response: vehicles
-  };
+app.get("/tesla/vehicles", async (req: Request, res: Response) => {
+  const authHeader = req.headers.authorization;
 
-  res.json(response);
+  const accessToken =
+    typeof authHeader === "string"
+      ? authHeader.replace("Bearer ", "")
+      : savedAccessToken;
+
+  if (!accessToken) {
+    return res.status(401).json({
+      error: "Missing access token"
+    });
+  }
+
+  try {
+    const vehicles = await fetchTeslaVehicles(accessToken);
+    return res.json(vehicles);
+  } catch (error: any) {
+    return res.status(500).json({
+      error: "Failed to fetch Tesla vehicles",
+      details: error.response?.data || error.message
+    });
+  }
 });
 
 app.get("/vehicles/:id", (req: Request, res: Response) => {
@@ -188,6 +205,32 @@ app.get("/auth/callback", async (req: Request, res: Response) => {
   } catch (error: any) {
     return res.status(500).json({
       error: "Token exchange failed",
+      details: error.response?.data || error.message
+    });
+  }
+});
+app.get("/auth/refresh", async (req: Request, res: Response) => {
+  if (!savedRefreshToken) {
+    return res.status(401).json({
+      error: "Missing refresh token"
+    });
+  }
+
+  try {
+    const tokenData = await refreshAccessToken(savedRefreshToken);
+
+    savedAccessToken = tokenData.access_token;
+    savedRefreshToken = tokenData.refresh_token || savedRefreshToken;
+
+    return res.json({
+      message: "Token refreshed",
+      access_token: tokenData.access_token,
+      refresh_token: savedRefreshToken,
+      expires_in: tokenData.expires_in
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      error: "Failed to refresh token",
       details: error.response?.data || error.message
     });
   }
