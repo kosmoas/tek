@@ -2,7 +2,7 @@ import express, { Request, Response } from "express";
 import dotenv from "dotenv";
 import axios from "axios";
 import { TeslaApiVehiclesResponse, TeslaVehicle, TeslaApiVehicle, VehiclesResponse, VehicleState } from "./types";
-import { exchangeCodeForToken, fetchTeslaVehicles, fetchTeslaVehicle, refreshAccessToken } from "./tesla";
+import { exchangeCodeForToken, fetchTeslaVehicles, fetchTeslaVehicle, refreshAccessToken, lockTeslaVehicle } from "./tesla";
 import {vehicles, findVehicleById} from "./sim";
 import { error } from "node:console";
 let savedAccessToken: string | ""
