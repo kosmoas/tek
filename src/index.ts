@@ -4,8 +4,8 @@ import axios from "axios";
 import { TeslaApiVehiclesResponse, TeslaVehicle, TeslaApiVehicle, VehiclesResponse, VehicleState } from "./types";
 import { exchangeCodeForToken, fetchTeslaVehicles, fetchTeslaVehicle } from "./tesla";
 import {vehicles, findVehicleById} from "./sim";
-let savedAccessToken = "";
-let savedRefreshToken = "";
+let savedAccessToken: any;
+let savedRefreshToken: any;
 
 dotenv.config();
 

@@ -1,7 +1,7 @@
 import axios from "axios";
-import { TeslaApiVehicle, TeslaApiVehiclesResponse } from "./types";
+import { TeslaApiVehicle, TeslaApiVehiclesResponse, TeslaTokenResponse } from "./types";
 
-export async function exchangeCodeForToken(code: string) {
+export async function exchangeCodeForToken(code: string): Promise<TeslaTokenResponse> {
   const body = new URLSearchParams({
     grant_type: "authorization_code",
     client_id: process.env.TESLA_CLIENT_ID || "",
@@ -11,7 +11,7 @@ export async function exchangeCodeForToken(code: string) {
     redirect_uri: process.env.TESLA_REDIRECT_URI || ""
   });
 
-  const response = await axios.post(
+  const response = await axios.post<TeslaTokenResponse>(
     "https://fleet-auth.prd.vn.cloud.tesla.com/oauth2/v3/token",
     body.toString(),
     {
