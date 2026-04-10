@@ -19,6 +19,7 @@ export interface TeslaApiVehicle {
   vin: string;
   display_name: string;
   state: string;
+  locked?: boolean;
 }
 
 export interface TeslaApiVehiclesResponse {
@@ -31,4 +32,35 @@ export interface TeslaTokenResponse {
   expires_in: number;
   token_type: string;
   scope?: string;
+}
+export interface DriveState {
+  latitude: number;
+  longitude: number;
+  speed: number | null;
+  heading: number;
+  power: number;
+  shift_state: "P" | "D" | "R" | "N" | null;
+}
+
+export interface ClimateState {
+  inside_temp: number;
+  outside_temp: number;
+  driver_temp_setting: number;
+  passenger_temp_setting: number;
+  is_climate_on: boolean;
+  is_preconditioning: boolean;
+}
+
+export interface ChargeState {
+  battery_level: number;
+  battery_range: number;
+  charge_limit_soc: number;
+  charging_state: "Charging" | "Complete" | "Disconnected" | "Stopped";
+  minutes_to_full_charge: number;
+  charge_rate: number;
+}
+
+export interface VehicleCommand {
+  result: boolean;
+  reason: string;
 }
