@@ -1,4 +1,4 @@
-# TEK - Tesla Fleet API Playground
+# TEK - Tesla Fleet API 
 
 ## About
 
